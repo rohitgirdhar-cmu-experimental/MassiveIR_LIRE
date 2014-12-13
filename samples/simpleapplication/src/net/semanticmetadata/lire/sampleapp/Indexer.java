@@ -114,9 +114,9 @@ public class Indexer {
         // Create visual words
         System.out.println("Clustering");
         IndexReader ir = DirectoryReader.open(FSDirectory.open(new File("index")));
-        SiftFeatureHistogramBuilder sh = new SiftFeatureHistogramBuilder(ir, 2000, Integer.parseInt(args[1]));
+        SiftFeatureHistogramBuilder sh = new SiftFeatureHistogramBuilder(ir, 5000, Integer.parseInt(args[1]));
         // progress monitoring is optional and opens a window showing you the progress.
-        sh.setProgressMonitor(new ProgressMonitor(null, "", "", 0, 100));
+        //sh.setProgressMonitor(new ProgressMonitor(null, "", "", 0, 100));
         sh.index();
         
         System.out.println("Finished indexing.");

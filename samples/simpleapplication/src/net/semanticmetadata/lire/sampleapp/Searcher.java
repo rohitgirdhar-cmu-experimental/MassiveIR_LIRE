@@ -71,7 +71,7 @@ public class Searcher {
         // Checking if arg[0] is there and if it is an image.
         BufferedImage img = null;
         boolean passed = false;
-        if (args.length > 0) {
+        if (args.length > 1) {
             File f = new File(args[0]);
             if (f.exists()) {
                 try {
@@ -82,16 +82,17 @@ public class Searcher {
                 }
             }
         }
-        IndexReader reader = DirectoryReader.open(FSDirectory.open(new File("index")));
-        SiftFeatureHistogramBuilder sh = new SiftFeatureHistogramBuilder(reader, -1, 1000);
-        SiftDocumentBuilder sb = new SiftDocumentBuilder();
-        Document query = sb.createDocument(img, args[0]);
+        
         
         if (!passed) {
             System.out.println("No image given as first argument.");
-            System.out.println("Run \"Searcher <query image>\" to search for <query image>.");
+            System.out.println("Run \"Searcher <query image> <vocab size>\" to search for <query image>.");
             System.exit(1);
         }
+        IndexReader reader = DirectoryReader.open(FSDirectory.open(new File("index")));
+        SiftFeatureHistogramBuilder sh = new SiftFeatureHistogramBuilder(reader, -1, Integer.parseInt(args[1]));
+        SiftDocumentBuilder sb = new SiftDocumentBuilder();
+        Document query = sb.createDocument(img, args[0]);
         
         query = sh.getVisualWords(query);
         IndexReader ir = DirectoryReader.open(FSDirectory.open(new File("index")));
