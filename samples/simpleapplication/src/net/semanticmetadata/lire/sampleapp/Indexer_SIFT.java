@@ -41,9 +41,9 @@
 
 package net.semanticmetadata.lire.sampleapp;
 
-import net.semanticmetadata.lire.imageanalysis.bovw.SurfFeatureHistogramBuilder;
+import net.semanticmetadata.lire.imageanalysis.bovw.SiftFeatureHistogramBuilder;
 import net.semanticmetadata.lire.impl.ChainedDocumentBuilder;
-import net.semanticmetadata.lire.impl.SurfDocumentBuilder;
+import net.semanticmetadata.lire.impl.SiftDocumentBuilder;
 import net.semanticmetadata.lire.utils.FileUtils;
 import net.semanticmetadata.lire.utils.LuceneUtils;
 
@@ -70,7 +70,7 @@ import java.util.Iterator;
  * Date: 25.05.12
  * Time: 12:04
  */
-public class Indexer {
+public class Indexer_SIFT {
     public static void main(String[] args) throws IOException {
         // Checking if arg[0] is there and if it is a directory.
         boolean passed = false;
@@ -90,38 +90,32 @@ public class Indexer {
 
         // Creating a CEDD document builder and indexing all files.
         ChainedDocumentBuilder builder = new ChainedDocumentBuilder();
-        builder.addBuilder(new SurfDocumentBuilder());
+        builder.addBuilder(new SiftDocumentBuilder());
         // Creating an Lucene IndexWriter
         IndexWriterConfig conf = new IndexWriterConfig(LuceneUtils.LUCENE_VERSION,
                 new WhitespaceAnalyzer(LuceneUtils.LUCENE_VERSION));
-        boolean skipIndexing = false;
-        if (args.length > 2 && args[2].equals("--skipIndexing")) {
-        	skipIndexing = true;
+        IndexWriter iw = new IndexWriter(FSDirectory.open(new File("index")), conf);
+        // Iterating through images building the low level features
+        for (Iterator<String> it = images.iterator(); it.hasNext(); ) {
+            String imageFilePath = it.next();
+            System.out.println("Indexing " + convertToLabel(imageFilePath, args[0]));
+            try {
+                BufferedImage img = ImageIO.read(new FileInputStream(imageFilePath));
+                Document document = builder.createDocument(img, 
+                		convertToLabel(imageFilePath, args[0]));
+                iw.addDocument(document);
+            } catch (Exception e) {
+                System.err.println("Error reading image or indexing it.");
+                e.printStackTrace();
+            }
         }
-        if (! skipIndexing) {
-        	IndexWriter iw = new IndexWriter(FSDirectory.open(new File("index")), conf);
-        	// Iterating through images building the low level features
-        	for (Iterator<String> it = images.iterator(); it.hasNext(); ) {
-        		String imageFilePath = it.next();
-        		System.out.println("Indexing " + convertToLabel(imageFilePath, args[0]));
-        		try {
-        			BufferedImage img = ImageIO.read(new FileInputStream(imageFilePath));
-        			Document document = builder.createDocument(img, 
-        					convertToLabel(imageFilePath, args[0]));
-        			iw.addDocument(document);
-        		} catch (Exception e) {
-        			System.err.println("Error reading image or indexing it.");
-        			e.printStackTrace();
-        		}
-        	}
-        	// closing the IndexWriter
-        	iw.close();
-        }
+        // closing the IndexWriter
+        iw.close();
         
         // Create visual words
         System.out.println("Clustering");
         IndexReader ir = DirectoryReader.open(FSDirectory.open(new File("index")));
-        SurfFeatureHistogramBuilder sh = new SurfFeatureHistogramBuilder(ir, 5000, Integer.parseInt(args[1]));
+        SiftFeatureHistogramBuilder sh = new SiftFeatureHistogramBuilder(ir, 5000, Integer.parseInt(args[1]));
         // progress monitoring is optional and opens a window showing you the progress.
         //sh.setProgressMonitor(new ProgressMonitor(null, "", "", 0, 100));
         sh.index();

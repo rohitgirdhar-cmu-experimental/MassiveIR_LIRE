@@ -71,8 +71,8 @@ public class VisualWordsImageSearcher extends AbstractImageSearcher {
     private int numMaxHits;
     private String fieldName;
     private Similarity similarity = new DefaultSimilarity();
-//    private Similarity similarity = new MySimilarity();
-//    private Similarity similarity = new BM25Similarity();
+    // private Similarity similarity = new MySimilarity();
+    // private Similarity similarity = new BM25Similarity();
     QueryParser qp;
 
 

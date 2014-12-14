@@ -66,7 +66,7 @@ import java.io.IOException;
  * Date: 25.05.12
  * Time: 12:19
  */
-public class Searcher {
+public class Searcher_SIFT {
     public static void main(String[] args) throws IOException {
         // Checking if arg[0] is there and if it is an image.
         BufferedImage img = null;
@@ -90,14 +90,14 @@ public class Searcher {
             System.exit(1);
         }
         IndexReader reader = DirectoryReader.open(FSDirectory.open(new File("index")));
-        SurfFeatureHistogramBuilder sh = new SurfFeatureHistogramBuilder(reader, -1, Integer.parseInt(args[1]));
-        SurfDocumentBuilder sb = new SurfDocumentBuilder();
+        SiftFeatureHistogramBuilder sh = new SiftFeatureHistogramBuilder(reader, -1, Integer.parseInt(args[1]));
+        SiftDocumentBuilder sb = new SiftDocumentBuilder();
         Document query = sb.createDocument(img, args[0]);
         
         query = sh.getVisualWords(query);
         IndexReader ir = DirectoryReader.open(FSDirectory.open(new File("index")));
         ImageSearcher searcher = new VisualWordsImageSearcher(1000,
-                DocumentBuilder.FIELD_NAME_SURF_VISUAL_WORDS);
+                DocumentBuilder.FIELD_NAME_SIFT_VISUAL_WORDS);
 //        ImageSearcher searcher = new GenericFastImageSearcher(30, AutoColorCorrelogram.class);
 
         ImageSearchHits hits = searcher.search(query, ir);
